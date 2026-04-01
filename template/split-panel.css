@@ -1,0 +1,101 @@
+[data-easy-auth-template="split_panel"] {
+  --easy-auth-panel-bg: #ffffff;
+  --easy-auth-panel-border: #dbe4f0;
+  --easy-auth-ink: #1f2937;
+  max-width: 860px;
+  padding: 0;
+  border-radius: 20px;
+  border: 1px solid var(--easy-auth-panel-border);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+  background: #fff;
+  font-family: "Trebuchet MS", "Segoe UI", Tahoma, sans-serif;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-template-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  min-height: 560px;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-template-form {
+  padding: 30px 28px;
+  background: var(--easy-auth-panel-bg);
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-template-side {
+  background: linear-gradient(145deg, #1f3b8c 0%, #2e65d6 45%, #4a87ff 100%);
+  color: #fff;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-template-side h3 {
+  margin: 0 0 10px;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-template-side p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 28ch;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-tabs {
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-tab {
+  border-radius: 999px;
+  border-color: #cfd8e6;
+  font-weight: 600;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-tab.is-active {
+  background: #eff4ff;
+  border-color: #2e65d6;
+  color: #1f3b8c;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-form {
+  gap: 12px;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-form input {
+  border-radius: 12px;
+  min-height: 46px;
+  border: 1px solid #cfd8e6;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-btn {
+  min-height: 46px;
+  border-radius: 12px;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-social {
+  margin-top: 14px;
+  grid-template-columns: 1fr;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-social-btn {
+  border-radius: 12px;
+  min-height: 44px;
+}
+
+@media (max-width: 860px) {
+  [data-easy-auth-template="split_panel"] .easy-auth-template-grid {
+    grid-template-columns: 1fr;
+  }
+
+  [data-easy-auth-template="split_panel"] .easy-auth-template-side {
+    order: -1;
+    min-height: 180px;
+  }
+}

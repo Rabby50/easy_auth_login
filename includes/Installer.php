@@ -57,6 +57,7 @@ class Installer
             'github_enabled' => false,
             'github_client_id' => '',
             'github_client_secret' => '',
+            'ui_template' => 'default',
             'style_theme' => 'inherit',
             'button_color' => '#146ef5',
             'button_text_color' => '#ffffff',

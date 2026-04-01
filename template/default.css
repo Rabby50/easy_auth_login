@@ -1,0 +1,4 @@
+/* Default template keeps the existing plugin styling without additional overrides. */
+[data-easy-auth-template="default"] {
+  position: relative;
+}

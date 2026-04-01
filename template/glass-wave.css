@@ -1,0 +1,73 @@
+[data-easy-auth-template="glass_wave"] {
+  max-width: 560px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: linear-gradient(165deg, rgba(13, 41, 72, 0.74), rgba(6, 97, 87, 0.72));
+  box-shadow: 0 20px 48px rgba(6, 30, 54, 0.35);
+  color: #f8fafc;
+  font-family: "Candara", "Segoe UI", sans-serif;
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-glass-bg {
+  position: absolute;
+  inset: -120px -140px auto auto;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180, 255, 220, 0.42) 0%, rgba(180, 255, 220, 0) 70%);
+  pointer-events: none;
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-tabs,
+[data-easy-auth-template="glass_wave"] .easy-auth-panels,
+[data-easy-auth-template="glass_wave"] .easy-auth-social,
+[data-easy-auth-template="glass_wave"] .easy-auth-message {
+  position: relative;
+  z-index: 1;
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-tab {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #e2ecff;
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-tab.is-active {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #ffffff;
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-form input {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-form input::placeholder {
+  color: rgba(244, 247, 252, 0.86);
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-toggle {
+  color: #ecfeff;
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-btn {
+  box-shadow: 0 6px 18px rgba(3, 15, 35, 0.36);
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-social-btn {
+  background: rgba(255, 255, 255, 0.14);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-message.is-success {
+  color: #bbf7d0;
+}
+
+[data-easy-auth-template="glass_wave"] .easy-auth-message.is-error {
+  color: #fecaca;
+}

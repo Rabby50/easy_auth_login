@@ -14,6 +14,7 @@ class SettingsPage
         'general' => 'General',
         'redirection' => 'Redirection',
         'social' => 'Social Login',
+        'templates' => 'Templates',
         'styling' => 'Styling',
         'security' => 'Security',
     ];
@@ -102,6 +103,9 @@ class SettingsPage
         $out['style_theme'] = in_array(($input['style_theme'] ?? 'inherit'), ['light', 'dark', 'inherit'], true)
             ? $input['style_theme']
             : 'inherit';
+        $out['ui_template'] = in_array(($input['ui_template'] ?? 'default'), ['default', 'split_panel', 'glass_wave'], true)
+            ? $input['ui_template']
+            : 'default';
         $out['button_color'] = sanitize_hex_color((string) ($input['button_color'] ?? '#146ef5')) ?: '#146ef5';
         $out['button_text_color'] = sanitize_hex_color((string) ($input['button_text_color'] ?? '#ffffff')) ?: '#ffffff';
         $out['custom_css'] = wp_strip_all_tags((string) ($input['custom_css'] ?? ''));
@@ -246,6 +250,14 @@ class SettingsPage
                 $this->colorField('button_color', 'Primary Button Color', $settings);
                 $this->colorField('button_text_color', 'Primary Button Text Color', $settings);
                 $this->textareaField('custom_css', 'Custom CSS', $settings);
+                break;
+
+            case 'templates':
+                $this->selectField('ui_template', 'Login Form Template', $settings, [
+                    'default' => 'Default (Current Design)',
+                    'split_panel' => 'Split Panel (CodePen Inspired)',
+                    'glass_wave' => 'Glass Wave',
+                ]);
                 break;
 
             case 'security':

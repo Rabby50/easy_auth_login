@@ -72,21 +72,48 @@
   border: 0;
   border-radius: 10px;
   min-height: 42px;
-  background: var(--easy-auth-button);
-  color: var(--easy-auth-button-text);
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.easy-auth-btn {
+  background: var(--easy-auth-button);
+  color: var(--easy-auth-button-text);
+}
+
+.easy-auth-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  box-shadow: 0 4px 12px rgba(20, 110, 245, 0.3);
+}
+
+.easy-auth-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.easy-auth-social-btn {
+  background: #ffffff;
+  color: #1f2937;
+  border: 1px solid #d4d8dd;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.easy-auth-social-btn:hover:not(:disabled) {
+  border-color: var(--easy-auth-button);
+  box-shadow: 0 2px 8px rgba(20, 110, 245, 0.15);
+}
+
+.easy-auth-social-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .easy-auth-social {
   margin-top: 12px;
   display: grid;
   gap: 8px;
-}
-
-.easy-auth-social-btn[disabled] {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .easy-auth-strength {

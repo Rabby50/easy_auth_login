@@ -6,6 +6,8 @@ use EasyAuthLogin\Admin\SettingsPage;
 use EasyAuthLogin\Auth\AuthController;
 use EasyAuthLogin\Auth\ForceLoginRedirect;
 use EasyAuthLogin\Auth\MagicLinkController;
+use EasyAuthLogin\Auth\OAuthCallbackHandler;
+use EasyAuthLogin\Auth\OAuthController;
 use EasyAuthLogin\Auth\RateLimitService;
 use EasyAuthLogin\Frontend\Assets;
 use EasyAuthLogin\Frontend\AuthShortcode;
@@ -45,6 +47,8 @@ class Plugin
         $rateLimit = new RateLimitService();
         (new AuthController($rateLimit))->registerRoutes();
         (new MagicLinkController())->registerRoutes();
+        (new OAuthCallbackHandler())->register();
+        (new OAuthController())->registerRoutes();
         (new ForceLoginRedirect())->register();
 
         (new Assets())->register();

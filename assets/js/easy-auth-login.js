@@ -166,10 +166,35 @@
     });
   }
 
+  async function handleOAuthClick(event) {
+    var button = event.target.closest('[data-easy-auth-oauth]');
+    if (!button) return;
+
+    var provider = button.getAttribute('data-easy-auth-oauth');
+    if (!provider) return;
+
+    button.disabled = true;
+    button.textContent = 'Loading...';
+
+    try {
+      var data = await postJson('/oauth/authorize', { provider: provider });
+      if (data.auth_url) {
+        window.location.href = data.auth_url;
+      } else {
+        throw new Error('No authorization URL returned');
+      }
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = 'Continue with ' + (provider === 'google' ? 'Google' : 'GitHub');
+      alert(error.message || 'Failed to initiate OAuth flow');
+    }
+  }
+
   document.addEventListener('click', function (event) {
     switchTab(event);
     togglePassword(event);
     logout(event);
+    handleOAuthClick(event);
   });
 
   document.addEventListener('input', updateStrength);

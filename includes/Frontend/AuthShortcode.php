@@ -48,8 +48,8 @@ class AuthShortcode
             </div>
 
             <div class="easy-auth-social">
-                <button type="button" class="easy-auth-social-btn" disabled><?php esc_html_e('Continue with Google', 'easy-auth-login'); ?></button>
-                <button type="button" class="easy-auth-social-btn" disabled><?php esc_html_e('Continue with GitHub', 'easy-auth-login'); ?></button>
+                <button type="button" class="easy-auth-social-btn" data-easy-auth-oauth="google"><?php esc_html_e('Continue with Google', 'easy-auth-login'); ?></button>
+                <button type="button" class="easy-auth-social-btn" data-easy-auth-oauth="github"><?php esc_html_e('Continue with GitHub', 'easy-auth-login'); ?></button>
             </div>
 
             <p class="easy-auth-message" data-easy-auth-message="1" aria-live="polite"></p>

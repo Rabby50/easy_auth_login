@@ -68,6 +68,7 @@ class Assets
             'nonce' => wp_create_nonce('wp_rest'),
             'turnstileSiteKey' => (string) ($settings['turnstile_site_key'] ?? ''),
             'passwordToggleEnabled' => ! empty($settings['password_visibility_toggle']),
+            'otpResendCooldownSeconds' => 30,
             'template' => $selectedTemplate,
             'buttonColor' => (string) ($settings['button_color'] ?? '#146ef5'),
             'buttonTextColor' => (string) ($settings['button_text_color'] ?? '#ffffff'),

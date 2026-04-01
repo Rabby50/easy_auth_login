@@ -69,6 +69,20 @@ class Installer
             'lockout_enabled' => true,
             'lockout_max_retries' => 5,
             'lockout_minutes' => 15,
+            'gmail_smtp_enabled' => false,
+            'gmail_smtp_host' => 'smtp.gmail.com',
+            'gmail_smtp_port' => 587,
+            'gmail_smtp_encryption' => 'tls',
+            'gmail_smtp_auth' => true,
+            'gmail_smtp_username' => '',
+            'gmail_smtp_password' => '',
+            'gmail_from_email' => '',
+            'gmail_from_name' => '',
+            'custom_site_name' => '',
+            'registration_thank_you_message' => 'Thank you for registering on {site_name}, {username}.',
+            'forgot_otp_expiry_seconds' => 45,
+            'forgot_otp_max_requests' => 3,
+            'forgot_otp_window_minutes' => 30,
         ];
 
         if (! get_option(EASY_AUTH_LOGIN_OPTION_KEY)) {

@@ -61,6 +61,32 @@
     return Array.isArray(data.data) ? data.data : [];
   }
 
+  async function sendTestEmail(recipientEmail) {
+    var body = new URLSearchParams();
+    body.set('action', 'easy_auth_send_test_email');
+    body.set('nonce', config.testEmailNonce || '');
+    body.set('recipient_email', recipientEmail || '');
+
+    var response = await fetch(config.ajaxUrl || '', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      body: body.toString()
+    });
+
+    var data = await response.json().catch(function () {
+      return {};
+    });
+
+    if (!response.ok || !data || !data.success) {
+      throw new Error((data && data.data && data.data.message) || 'Unable to send test email.');
+    }
+
+    return data.data || {};
+  }
+
   function initPicker(row) {
     var hidden = row.querySelector('[data-easy-auth-page-id="1"]');
     var input = row.querySelector('[data-easy-auth-page-search="1"]');
@@ -210,6 +236,50 @@
       var row = hiddenInput.closest('td');
       if (row) {
         initMultiPicker(row);
+      }
+    });
+
+    document.addEventListener('click', async function (event) {
+      var button = event.target.closest('[data-easy-auth-send-test-email="1"]');
+      if (!button) {
+        return;
+      }
+
+      var row = button.closest('td');
+      if (!row) {
+        return;
+      }
+
+      var emailInput = row.querySelector('[data-easy-auth-test-email="1"]');
+      var status = row.querySelector('[data-easy-auth-test-email-status="1"]');
+      var recipient = emailInput ? (emailInput.value || '').trim() : '';
+
+      if (!recipient || recipient.indexOf('@') === -1) {
+        if (status) {
+          status.textContent = 'Please enter a valid recipient email.';
+          status.style.color = '#b91c1c';
+        }
+        return;
+      }
+
+      var originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = config.sendingText || 'Sending...';
+
+      try {
+        var result = await sendTestEmail(recipient);
+        if (status) {
+          status.textContent = result.message || 'Test email sent successfully.';
+          status.style.color = '#166534';
+        }
+      } catch (error) {
+        if (status) {
+          status.textContent = (error && error.message) ? error.message : 'Unable to send test email.';
+          status.style.color = '#b91c1c';
+        }
+      } finally {
+        button.disabled = false;
+        button.textContent = config.sendTestText || originalText || 'Send Test Email';
       }
     });
   });

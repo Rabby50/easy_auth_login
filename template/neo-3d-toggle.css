@@ -128,6 +128,38 @@
   margin: 0 0 24px;
 }
 
+[data-easy-auth-template="neo_3d_toggle"] .easy-auth-otp-row[hidden] {
+  display: none;
+}
+
+[data-easy-auth-template="neo_3d_toggle"] .easy-auth-otp-cooldown[hidden] {
+  display: none;
+}
+
+[data-easy-auth-template="neo_3d_toggle"] .easy-auth-otp-cooldown {
+  display: grid;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+[data-easy-auth-template="neo_3d_toggle"] .easy-auth-otp-cooldown small {
+  font-size: 11px;
+  color: var(--cube-text);
+  opacity: 0.8;
+}
+
+[data-easy-auth-template="neo_3d_toggle"] .easy-auth-otp-expiry[hidden] {
+  display: none;
+}
+
+[data-easy-auth-template="neo_3d_toggle"] .easy-auth-otp-expiry {
+  margin: -10px 0 8px;
+  font-size: 11px;
+  color: var(--cube-text);
+  opacity: 0.82;
+  text-align: left;
+}
+
 [data-easy-auth-template="neo_3d_toggle"] .easy-auth-form input {
   width: 100%;
   min-height: 0;

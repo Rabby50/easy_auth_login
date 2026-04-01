@@ -12,6 +12,7 @@ use EasyAuthLogin\Auth\RateLimitService;
 use EasyAuthLogin\Frontend\Assets;
 use EasyAuthLogin\Frontend\AuthShortcode;
 use EasyAuthLogin\Frontend\Block;
+use EasyAuthLogin\Support\GmailSmtp;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -43,6 +44,7 @@ class Plugin
     public function boot(): void
     {
         (new SettingsPage())->register();
+        (new GmailSmtp())->register();
 
         $rateLimit = new RateLimitService();
         (new AuthController($rateLimit))->registerRoutes();

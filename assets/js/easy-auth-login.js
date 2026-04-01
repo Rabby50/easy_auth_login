@@ -2,6 +2,7 @@
   'use strict';
 
   var config = window.EasyAuthLoginData || {};
+  var otpResendCooldownSeconds = Number(config.otpResendCooldownSeconds || 30);
 
   function scorePassword(value) {
     var score = 0;
@@ -157,6 +158,7 @@
 
     try {
       var data = await postJson(endpoint, formToObject(form));
+      handleForgotOtpFlow(form, data);
       setMessage(root, data.message || 'Success', false);
       if (data.redirect_url) {
         window.location.href = data.redirect_url;
@@ -165,6 +167,167 @@
       setMessage(root, error.message || (config.messages && config.messages.networkError) || 'Request failed', true);
     } finally {
       if (submit) submit.disabled = false;
+    }
+  }
+
+  function handleForgotOtpFlow(form, data) {
+    if (!form || !form.matches('[data-easy-auth-forgot="1"]')) {
+      return;
+    }
+
+    if (!data || !data.awaiting_otp || !data.otp_token) {
+      return;
+    }
+
+    var otpRow = form.querySelector('[data-easy-auth-otp-row="1"]');
+    var otpToken = form.querySelector('[data-easy-auth-otp-token="1"]');
+    var submit = form.querySelector('[data-easy-auth-forgot-submit="1"], button[type="submit"]');
+    var cooldownWrap = form.querySelector('[data-easy-auth-otp-cooldown-wrap="1"]');
+    var expiryWrap = form.querySelector('[data-easy-auth-otp-expiry="1"]');
+
+    if (otpRow) {
+      otpRow.hidden = false;
+      var otpInput = otpRow.querySelector('input[name="otp_code"]');
+      if (otpInput) {
+        otpInput.required = true;
+      }
+    }
+
+    if (otpToken && data.otp_token) {
+      otpToken.value = data.otp_token;
+    }
+
+    form.setAttribute('data-endpoint', '/forgot-password/verify-otp');
+
+    if (submit) {
+      submit.textContent = 'Verify OTP';
+    }
+
+    if (cooldownWrap) {
+      cooldownWrap.hidden = false;
+      startOtpCooldown(form, data.cooldown_seconds || otpResendCooldownSeconds);
+    }
+
+    if (expiryWrap) {
+      expiryWrap.hidden = false;
+      startOtpExpiryCountdown(form, data.expires_in || 45);
+    }
+  }
+
+  function startOtpExpiryCountdown(form, seconds) {
+    if (!form) return;
+
+    var expiryWrap = form.querySelector('[data-easy-auth-otp-expiry="1"]');
+    var otpInput = form.querySelector('input[name="otp_code"]');
+    var submit = form.querySelector('[data-easy-auth-forgot-submit="1"], button[type="submit"]');
+    var total = Math.max(1, Number(seconds || 45));
+
+    if (!expiryWrap) {
+      return;
+    }
+
+    if (form._easyAuthOtpExpiryTimer) {
+      clearInterval(form._easyAuthOtpExpiryTimer);
+      form._easyAuthOtpExpiryTimer = null;
+    }
+
+    expiryWrap.textContent = 'OTP expires in ' + total + 's';
+
+    form._easyAuthOtpExpiryTimer = setInterval(function () {
+      total -= 1;
+      if (total <= 0) {
+        clearInterval(form._easyAuthOtpExpiryTimer);
+        form._easyAuthOtpExpiryTimer = null;
+        expiryWrap.textContent = 'OTP expired. Request a new OTP.';
+        if (otpInput) {
+          otpInput.disabled = true;
+        }
+        if (submit) {
+          submit.disabled = true;
+        }
+        return;
+      }
+
+      expiryWrap.textContent = 'OTP expires in ' + total + 's';
+    }, 1000);
+  }
+
+  function startOtpCooldown(form, seconds) {
+    if (!form) return;
+
+    var resendButton = form.querySelector('[data-easy-auth-otp-resend="1"]');
+    var countdown = form.querySelector('[data-easy-auth-otp-countdown="1"]');
+    var total = Math.max(1, Number(seconds || 30));
+
+    if (!resendButton || !countdown) {
+      return;
+    }
+
+    if (form._easyAuthOtpTimer) {
+      clearInterval(form._easyAuthOtpTimer);
+      form._easyAuthOtpTimer = null;
+    }
+
+    resendButton.disabled = true;
+    countdown.textContent = 'Resend OTP in ' + total + 's';
+
+    form._easyAuthOtpTimer = setInterval(function () {
+      total -= 1;
+      if (total <= 0) {
+        clearInterval(form._easyAuthOtpTimer);
+        form._easyAuthOtpTimer = null;
+        resendButton.disabled = false;
+        countdown.textContent = 'You can resend OTP now.';
+        return;
+      }
+
+      countdown.textContent = 'Resend OTP in ' + total + 's';
+    }, 1000);
+  }
+
+  async function resendForgotOtp(event) {
+    var button = event.target.closest('[data-easy-auth-otp-resend="1"]');
+    if (!button || button.disabled) {
+      return;
+    }
+
+    var form = button.closest('[data-easy-auth-forgot="1"]');
+    if (!form) {
+      return;
+    }
+
+    var root = form.closest('[data-easy-auth-root="1"]');
+    var userLoginInput = form.querySelector('input[name="user_login"]');
+    var userLogin = userLoginInput ? (userLoginInput.value || '').trim() : '';
+
+    if (!userLogin) {
+      if (root) {
+        setMessage(root, 'Enter your email or username first.', true);
+      }
+      return;
+    }
+
+    button.disabled = true;
+    try {
+      var data = await postJson('/forgot-password/request-otp', { user_login: userLogin });
+      var otpInput = form.querySelector('input[name="otp_code"]');
+      var submit = form.querySelector('[data-easy-auth-forgot-submit="1"], button[type="submit"]');
+      if (otpInput) {
+        otpInput.disabled = false;
+        otpInput.value = '';
+      }
+      if (submit) {
+        submit.disabled = false;
+      }
+      handleForgotOtpFlow(form, data);
+      if (root) {
+        setMessage(root, data.message || 'OTP resent.', false);
+      }
+    } catch (error) {
+      button.disabled = false;
+      if (root) {
+        setMessage(root, error.message || 'Unable to resend OTP.', true);
+      }
     }
   }
 
@@ -224,6 +387,7 @@
     switchTab(event);
     togglePassword(event);
     toggleNeoTheme(event);
+    resendForgotOtp(event);
     logout(event);
     handleOAuthClick(event);
   });

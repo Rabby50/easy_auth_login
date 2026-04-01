@@ -263,12 +263,22 @@ class AuthShortcode
     {
         ?>
         <section class="easy-auth-panel" data-panel="forgot">
-            <form class="easy-auth-form" data-endpoint="/forgot-password" autocomplete="off">
+            <form class="easy-auth-form" data-endpoint="/forgot-password/request-otp" data-easy-auth-forgot="1" autocomplete="off">
                 <div class="control block-cube block-input">
                     <input type="text" name="user_login" placeholder="<?php esc_attr_e('Username or email', 'easy-auth-login'); ?>" required />
                     <?php $this->renderNeoCubeFaces(); ?>
                 </div>
-                <?php $this->renderNeoCubeButton(__('Send Reset Link', 'easy-auth-login'), 'easy-auth-btn'); ?>
+                <input type="hidden" name="otp_token" value="" data-easy-auth-otp-token="1" />
+                <div class="control block-cube block-input easy-auth-otp-row" data-easy-auth-otp-row="1" hidden>
+                    <input type="text" name="otp_code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="<?php esc_attr_e('Enter 6-digit OTP', 'easy-auth-login'); ?>" />
+                    <?php $this->renderNeoCubeFaces(); ?>
+                </div>
+                <p class="easy-auth-otp-expiry" data-easy-auth-otp-expiry="1" hidden></p>
+                <?php $this->renderNeoCubeButton(__('Send OTP', 'easy-auth-login'), 'easy-auth-btn'); ?>
+                <div class="easy-auth-otp-cooldown" data-easy-auth-otp-cooldown-wrap="1" hidden>
+                    <button type="button" class="easy-auth-btn" data-easy-auth-otp-resend="1" disabled><?php esc_html_e('Resend OTP', 'easy-auth-login'); ?></button>
+                    <small data-easy-auth-otp-countdown="1"></small>
+                </div>
             </form>
         </section>
         <?php
@@ -366,9 +376,18 @@ class AuthShortcode
     {
         ?>
         <section class="easy-auth-panel" data-panel="forgot">
-            <form class="easy-auth-form" data-endpoint="/forgot-password">
+            <form class="easy-auth-form" data-endpoint="/forgot-password/request-otp" data-easy-auth-forgot="1">
                 <input type="text" name="user_login" placeholder="<?php esc_attr_e('Username or email', 'easy-auth-login'); ?>" required />
-                <button type="submit" class="easy-auth-btn"><?php esc_html_e('Send Reset Link', 'easy-auth-login'); ?></button>
+                <input type="hidden" name="otp_token" value="" data-easy-auth-otp-token="1" />
+                <div class="easy-auth-otp-row" data-easy-auth-otp-row="1" hidden>
+                    <input type="text" name="otp_code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="<?php esc_attr_e('Enter 6-digit OTP', 'easy-auth-login'); ?>" />
+                </div>
+                <p class="easy-auth-otp-expiry" data-easy-auth-otp-expiry="1" hidden></p>
+                <button type="submit" class="easy-auth-btn" data-easy-auth-forgot-submit="1"><?php esc_html_e('Send OTP', 'easy-auth-login'); ?></button>
+                <div class="easy-auth-otp-cooldown" data-easy-auth-otp-cooldown-wrap="1" hidden>
+                    <button type="button" class="easy-auth-social-btn" data-easy-auth-otp-resend="1" disabled><?php esc_html_e('Resend OTP', 'easy-auth-login'); ?></button>
+                    <small data-easy-auth-otp-countdown="1"></small>
+                </div>
             </form>
         </section>
         <?php

@@ -15,6 +15,7 @@ class SettingsPage
         'redirection' => 'Redirection',
         'social' => 'Social Login',
         'templates' => 'Templates',
+        'gmail_smpt' => 'Gmail Smpt',
         'styling' => 'Styling',
         'security' => 'Security',
     ];
@@ -25,6 +26,7 @@ class SettingsPage
         add_action('admin_init', [$this, 'registerSettings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
         add_action('wp_ajax_easy_auth_search_pages', [$this, 'searchPages']);
+        add_action('wp_ajax_easy_auth_send_test_email', [$this, 'sendTestEmail']);
     }
 
     public function addMenu(): void
@@ -68,6 +70,8 @@ class SettingsPage
             'honeypot_enabled',
             'turnstile_enabled',
             'lockout_enabled',
+            'gmail_smtp_enabled',
+            'gmail_smtp_auth',
         ];
 
         foreach ($boolKeys as $key) {
@@ -115,6 +119,21 @@ class SettingsPage
         $out['lockout_max_retries'] = max(1, (int) ($input['lockout_max_retries'] ?? 5));
         $out['lockout_minutes'] = max(1, (int) ($input['lockout_minutes'] ?? 15));
 
+        $out['gmail_smtp_host'] = sanitize_text_field((string) ($input['gmail_smtp_host'] ?? 'smtp.gmail.com'));
+        $out['gmail_smtp_port'] = max(1, (int) ($input['gmail_smtp_port'] ?? 587));
+        $out['gmail_smtp_encryption'] = in_array(($input['gmail_smtp_encryption'] ?? 'tls'), ['tls', 'ssl', 'none'], true)
+            ? $input['gmail_smtp_encryption']
+            : 'tls';
+        $out['gmail_smtp_username'] = sanitize_text_field((string) ($input['gmail_smtp_username'] ?? ''));
+        $out['gmail_smtp_password'] = sanitize_text_field((string) ($input['gmail_smtp_password'] ?? ''));
+        $out['gmail_from_email'] = sanitize_email((string) ($input['gmail_from_email'] ?? ''));
+        $out['gmail_from_name'] = sanitize_text_field((string) ($input['gmail_from_name'] ?? ''));
+        $out['custom_site_name'] = sanitize_text_field((string) ($input['custom_site_name'] ?? ''));
+        $out['registration_thank_you_message'] = sanitize_textarea_field((string) ($input['registration_thank_you_message'] ?? ''));
+        $out['forgot_otp_expiry_seconds'] = max(30, min(300, (int) ($input['forgot_otp_expiry_seconds'] ?? 45)));
+        $out['forgot_otp_max_requests'] = max(1, min(10, (int) ($input['forgot_otp_max_requests'] ?? 3)));
+        $out['forgot_otp_window_minutes'] = max(5, min(1440, (int) ($input['forgot_otp_window_minutes'] ?? 30)));
+
         return array_merge($old, $out);
     }
 
@@ -135,9 +154,12 @@ class SettingsPage
         wp_localize_script('easy-auth-admin-settings', 'EasyAuthAdminData', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('easy_auth_admin_page_search'),
+            'testEmailNonce' => wp_create_nonce('easy_auth_admin_test_email'),
             'noResults' => __('No pages found.', 'easy-auth-login'),
             'searchPlaceholder' => __('Search page by title...', 'easy-auth-login'),
             'clearText' => __('Clear', 'easy-auth-login'),
+            'sendingText' => __('Sending...', 'easy-auth-login'),
+            'sendTestText' => __('Send Test Email', 'easy-auth-login'),
         ]);
     }
 
@@ -170,6 +192,39 @@ class SettingsPage
         }
 
         wp_send_json_success($results);
+    }
+
+    public function sendTestEmail(): void
+    {
+        if (! current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Unauthorized.', 'easy-auth-login')], 403);
+        }
+
+        check_ajax_referer('easy_auth_admin_test_email', 'nonce');
+
+        $recipient = sanitize_email((string) ($_POST['recipient_email'] ?? ''));
+        if (! is_email($recipient)) {
+            wp_send_json_error(['message' => __('Please enter a valid recipient email.', 'easy-auth-login')], 400);
+        }
+
+        $settings = Options::all();
+        $siteName = sanitize_text_field((string) ($settings['custom_site_name'] ?? ''));
+        if ($siteName === '') {
+            $siteName = (string) get_bloginfo('name');
+        }
+
+        $subject = sprintf(__('[%s] SMTP Test Email', 'easy-auth-login'), $siteName);
+        $message = sprintf(
+            __('This is a test email from Easy Auth Login Gmail Smpt settings at %s.', 'easy-auth-login'),
+            current_time('mysql')
+        );
+
+        $sent = wp_mail($recipient, $subject, $message);
+        if (! $sent) {
+            wp_send_json_error(['message' => __('Test email could not be sent. Check SMTP settings and app password.', 'easy-auth-login')], 500);
+        }
+
+        wp_send_json_success(['message' => __('Test email sent successfully.', 'easy-auth-login')]);
     }
 
     public function renderPage(): void
@@ -259,6 +314,28 @@ class SettingsPage
                     'glass_wave' => 'Glass Wave',
                     'neo_3d_toggle' => 'Neo 3D Toggle (Dark/Light)',
                 ]);
+                break;
+
+            case 'gmail_smpt':
+                $this->checkboxField('gmail_smtp_enabled', 'Enable Gmail SMTP', $settings);
+                $this->textField('gmail_smtp_host', 'SMTP Host', $settings, 'smtp.gmail.com');
+                $this->numberField('gmail_smtp_port', 'SMTP Port', $settings, 1, 65535);
+                $this->selectField('gmail_smtp_encryption', 'Encryption', $settings, [
+                    'tls' => 'TLS',
+                    'ssl' => 'SSL',
+                    'none' => 'None',
+                ]);
+                $this->checkboxField('gmail_smtp_auth', 'SMTP Authentication', $settings);
+                $this->textField('gmail_smtp_username', 'SMTP Username (Gmail address)', $settings);
+                $this->passwordField('gmail_smtp_password', 'SMTP Password / App Password', $settings);
+                $this->textField('gmail_from_email', 'From Email', $settings);
+                $this->textField('gmail_from_name', 'From Name', $settings);
+                $this->textField('custom_site_name', 'Site Name (Email Template)', $settings);
+                $this->textareaField('registration_thank_you_message', 'Registration Thank You Message', $settings);
+                $this->numberField('forgot_otp_expiry_seconds', 'Forgot OTP Expiry (seconds)', $settings, 30, 300);
+                $this->numberField('forgot_otp_max_requests', 'Forgot OTP Max Requests', $settings, 1, 10);
+                $this->numberField('forgot_otp_window_minutes', 'Forgot OTP Window (minutes)', $settings, 5, 1440);
+                $this->testEmailField('SMTP Test Email');
                 break;
 
             case 'security':
@@ -429,6 +506,21 @@ class SettingsPage
                 </div>
                 <div class="easy-auth-page-picker-results" data-easy-auth-pages-results="1" style="margin-top:8px; max-width:420px;"></div>
                 <p class="description"><?php esc_html_e('Users visiting these pages while logged out will be redirected to the Force Login Redirect Page, then returned after authentication.', 'easy-auth-login'); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    private function testEmailField(string $label): void
+    {
+        $defaultRecipient = (string) get_option('admin_email', '');
+        ?>
+        <tr>
+            <th scope="row"><?php echo esc_html($label); ?></th>
+            <td>
+                <input type="email" class="regular-text" value="<?php echo esc_attr($defaultRecipient); ?>" data-easy-auth-test-email="1" placeholder="name@example.com" />
+                <button type="button" class="button button-secondary" data-easy-auth-send-test-email="1"><?php esc_html_e('Send Test Email', 'easy-auth-login'); ?></button>
+                <p class="description" data-easy-auth-test-email-status="1"></p>
             </td>
         </tr>
         <?php

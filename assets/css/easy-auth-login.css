@@ -45,6 +45,35 @@
   gap: 10px;
 }
 
+.easy-auth-otp-row[hidden] {
+  display: none;
+}
+
+.easy-auth-otp-cooldown[hidden] {
+  display: none;
+}
+
+.easy-auth-otp-cooldown {
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.easy-auth-otp-cooldown small {
+  color: #475569;
+  font-size: 12px;
+}
+
+.easy-auth-otp-expiry[hidden] {
+  display: none;
+}
+
+.easy-auth-otp-expiry {
+  margin: 0;
+  font-size: 12px;
+  color: #0f172a;
+}
+
 .easy-auth-form input {
   border: 1px solid #c7d2e0;
   border-radius: 10px;

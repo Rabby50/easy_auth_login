@@ -62,7 +62,37 @@
       panel.classList.toggle('is-active', panel.getAttribute('data-panel') === target);
     });
 
+    syncSplitSideContent(root, target);
+
     setMessage(root, '', false);
+  }
+
+  function syncSplitSideContent(root, target) {
+    if (!root) return;
+
+    root.querySelectorAll('[data-easy-auth-side-for]').forEach(function (copy) {
+      copy.classList.toggle('is-active', copy.getAttribute('data-easy-auth-side-for') === target);
+    });
+  }
+
+  function initSplitSideContent() {
+    document.querySelectorAll('[data-easy-auth-root="1"]').forEach(function (root) {
+      var activeTab = root.querySelector('.easy-auth-tab.is-active');
+      var tabName = activeTab ? activeTab.getAttribute('data-tab') : 'login';
+      syncSplitSideContent(root, tabName || 'login');
+    });
+  }
+
+  function toggleNeoTheme(event) {
+    var toggle = event.target.closest('[data-easy-auth-theme-toggle="1"]');
+    if (!toggle) return;
+
+    var root = toggle.closest('[data-easy-auth-theme-root="1"]');
+    if (!root) return;
+
+    var isLight = root.classList.toggle('is-light');
+    root.classList.toggle('is-dark', !isLight);
+    toggle.setAttribute('aria-pressed', isLight ? 'true' : 'false');
   }
 
   function updateStrength(event) {
@@ -193,11 +223,15 @@
   document.addEventListener('click', function (event) {
     switchTab(event);
     togglePassword(event);
+    toggleNeoTheme(event);
     logout(event);
     handleOAuthClick(event);
   });
 
   document.addEventListener('input', updateStrength);
   document.addEventListener('submit', submitForm);
-  document.addEventListener('DOMContentLoaded', applyThemeVars);
+  document.addEventListener('DOMContentLoaded', function () {
+    applyThemeVars();
+    initSplitSideContent();
+  });
 })();

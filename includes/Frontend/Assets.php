@@ -28,21 +28,28 @@ class Assets
             'easy-auth-login-template-default',
             EASY_AUTH_LOGIN_URL . 'template/default.css',
             ['easy-auth-login'],
-            EASY_AUTH_LOGIN_VERSION
+            (string) filemtime(EASY_AUTH_LOGIN_PATH . 'template/default.css')
         );
 
         wp_register_style(
             'easy-auth-login-template-split_panel',
             EASY_AUTH_LOGIN_URL . 'template/split-panel.css',
             ['easy-auth-login'],
-            EASY_AUTH_LOGIN_VERSION
+            (string) filemtime(EASY_AUTH_LOGIN_PATH . 'template/split-panel.css')
         );
 
         wp_register_style(
             'easy-auth-login-template-glass_wave',
             EASY_AUTH_LOGIN_URL . 'template/glass-wave.css',
             ['easy-auth-login'],
-            EASY_AUTH_LOGIN_VERSION
+            (string) filemtime(EASY_AUTH_LOGIN_PATH . 'template/glass-wave.css')
+        );
+
+        wp_register_style(
+            'easy-auth-login-template-neo_3d_toggle',
+            EASY_AUTH_LOGIN_URL . 'template/neo-3d-toggle.css',
+            ['easy-auth-login'],
+            (string) filemtime(EASY_AUTH_LOGIN_PATH . 'template/neo-3d-toggle.css')
         );
 
         wp_register_script(

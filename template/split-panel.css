@@ -27,9 +27,28 @@
   background: linear-gradient(145deg, #1f3b8c 0%, #2e65d6 45%, #4a87ff 100%);
   color: #fff;
   padding: 32px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-side-copy {
+  position: absolute;
+  inset: 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 320ms ease, transform 320ms ease;
+  pointer-events: none;
+}
+
+[data-easy-auth-template="split_panel"] .easy-auth-side-copy.is-active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 [data-easy-auth-template="split_panel"] .easy-auth-template-side h3 {
@@ -96,6 +115,10 @@
 
   [data-easy-auth-template="split_panel"] .easy-auth-template-side {
     order: -1;
-    min-height: 180px;
+    min-height: 210px;
+  }
+
+  [data-easy-auth-template="split_panel"] .easy-auth-side-copy {
+    inset: 24px;
   }
 }

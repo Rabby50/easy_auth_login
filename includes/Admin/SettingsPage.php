@@ -103,7 +103,7 @@ class SettingsPage
         $out['style_theme'] = in_array(($input['style_theme'] ?? 'inherit'), ['light', 'dark', 'inherit'], true)
             ? $input['style_theme']
             : 'inherit';
-        $out['ui_template'] = in_array(($input['ui_template'] ?? 'default'), ['default', 'split_panel', 'glass_wave'], true)
+        $out['ui_template'] = in_array(($input['ui_template'] ?? 'default'), ['default', 'split_panel', 'glass_wave', 'neo_3d_toggle'], true)
             ? $input['ui_template']
             : 'default';
         $out['button_color'] = sanitize_hex_color((string) ($input['button_color'] ?? '#146ef5')) ?: '#146ef5';
@@ -257,6 +257,7 @@ class SettingsPage
                     'default' => 'Default (Current Design)',
                     'split_panel' => 'Split Panel (CodePen Inspired)',
                     'glass_wave' => 'Glass Wave',
+                    'neo_3d_toggle' => 'Neo 3D Toggle (Dark/Light)',
                 ]);
                 break;
 

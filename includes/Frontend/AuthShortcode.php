@@ -13,6 +13,7 @@ class AuthShortcode
     private const TEMPLATE_DEFAULT = 'default';
     private const TEMPLATE_SPLIT_PANEL = 'split_panel';
     private const TEMPLATE_GLASS_WAVE = 'glass_wave';
+    private const TEMPLATE_NEO_3D_TOGGLE = 'neo_3d_toggle';
 
     public function register(): void
     {
@@ -48,7 +49,41 @@ class AuthShortcode
             return $this->renderGlassWaveTemplate($redirectTo);
         }
 
+        if ($template === self::TEMPLATE_NEO_3D_TOGGLE) {
+            return $this->renderNeo3dToggleTemplate($redirectTo);
+        }
+
         return $this->renderDefaultTemplate($redirectTo);
+    }
+
+    private function renderNeo3dToggleTemplate(string $redirectTo): string
+    {
+        ob_start();
+        ?>
+        <div class="easy-auth-shell easy-auth-shell--neo3d is-dark" data-easy-auth-root="1" data-easy-auth-template="neo_3d_toggle" data-easy-auth-theme-root="1">
+            <div class="easy-auth-neo3d-toggle-wrap">
+                <button type="button" class="easy-auth-neo3d-theme-toggle" data-easy-auth-theme-toggle="1" aria-label="Toggle theme" aria-pressed="false">
+                    <span class="easy-auth-neo3d-theme-label easy-auth-neo3d-theme-label--dark"><?php esc_html_e('Dark', 'easy-auth-login'); ?></span>
+                    <span class="easy-auth-neo3d-theme-thumb" aria-hidden="true"></span>
+                    <span class="easy-auth-neo3d-theme-label easy-auth-neo3d-theme-label--light"><?php esc_html_e('Light', 'easy-auth-login'); ?></span>
+                </button>
+            </div>
+
+            <?php $this->renderTabs(); ?>
+
+            <div class="easy-auth-panels">
+                <?php $this->renderNeoLoginPanel($redirectTo); ?>
+                <?php $this->renderNeoRegisterPanel($redirectTo); ?>
+                <?php $this->renderNeoForgotPanel(); ?>
+                <?php $this->renderNeoMagicPanel($redirectTo); ?>
+            </div>
+
+            <?php $this->renderNeoSocialButtons(); ?>
+
+            <p class="easy-auth-message" data-easy-auth-message="1" aria-live="polite"></p>
+        </div>
+        <?php
+        return (string) ob_get_clean();
     }
 
     private function renderDefaultTemplate(string $redirectTo): string
@@ -95,8 +130,22 @@ class AuthShortcode
                 </section>
 
                 <aside class="easy-auth-template-side" aria-hidden="true">
-                    <h3><?php esc_html_e('Welcome Back!', 'easy-auth-login'); ?></h3>
-                    <p><?php esc_html_e('We are happy to have you with us again. If you need anything, we are here to help.', 'easy-auth-login'); ?></p>
+                    <div class="easy-auth-side-copy is-active" data-easy-auth-side-for="login">
+                        <h3><?php esc_html_e('Welcome Back!', 'easy-auth-login'); ?></h3>
+                        <p><?php esc_html_e('We are happy to have you with us again. If you need anything, we are here to help.', 'easy-auth-login'); ?></p>
+                    </div>
+                    <div class="easy-auth-side-copy" data-easy-auth-side-for="register">
+                        <h3><?php esc_html_e('Welcome!', 'easy-auth-login'); ?></h3>
+                        <p><?php esc_html_e('Create your account in seconds and start using secure login, social sign in, and magic links.', 'easy-auth-login'); ?></p>
+                    </div>
+                    <div class="easy-auth-side-copy" data-easy-auth-side-for="forgot">
+                        <h3><?php esc_html_e('Reset Access', 'easy-auth-login'); ?></h3>
+                        <p><?php esc_html_e('Forgot your password? Send a secure reset link and get back into your account quickly.', 'easy-auth-login'); ?></p>
+                    </div>
+                    <div class="easy-auth-side-copy" data-easy-auth-side-for="magic">
+                        <h3><?php esc_html_e('Passwordless', 'easy-auth-login'); ?></h3>
+                        <p><?php esc_html_e('Use a one-time magic link sent to your inbox for a smooth, secure sign-in experience.', 'easy-auth-login'); ?></p>
+                    </div>
                 </aside>
             </div>
         </div>
@@ -156,9 +205,124 @@ class AuthShortcode
             self::TEMPLATE_DEFAULT,
             self::TEMPLATE_SPLIT_PANEL,
             self::TEMPLATE_GLASS_WAVE,
+            self::TEMPLATE_NEO_3D_TOGGLE,
         ];
 
         return in_array($template, $allowed, true) ? $template : self::TEMPLATE_DEFAULT;
+    }
+
+    private function renderNeoLoginPanel(string $redirectTo = ''): void
+    {
+        ?>
+        <section class="easy-auth-panel is-active" data-panel="login">
+            <form class="easy-auth-form" data-endpoint="/login" autocomplete="off">
+                <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirectTo); ?>" />
+                <div class="control block-cube block-input">
+                    <input type="text" name="username" placeholder="<?php esc_attr_e('Username or email', 'easy-auth-login'); ?>" required />
+                    <?php $this->renderNeoCubeFaces(); ?>
+                </div>
+                <div class="easy-auth-password-wrap control block-cube block-input">
+                    <input type="password" name="password" placeholder="<?php esc_attr_e('Password', 'easy-auth-login'); ?>" required />
+                    <button type="button" class="easy-auth-toggle" data-password-toggle="1">Show</button>
+                    <?php $this->renderNeoCubeFaces(); ?>
+                </div>
+                <?php $this->renderNeoCubeButton(__('Login', 'easy-auth-login'), 'easy-auth-btn'); ?>
+            </form>
+        </section>
+        <?php
+    }
+
+    private function renderNeoRegisterPanel(string $redirectTo = ''): void
+    {
+        ?>
+        <section class="easy-auth-panel" data-panel="register">
+            <form class="easy-auth-form" data-endpoint="/register" autocomplete="off">
+                <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirectTo); ?>" />
+                <div class="control block-cube block-input">
+                    <input type="text" name="username" placeholder="<?php esc_attr_e('Username', 'easy-auth-login'); ?>" required />
+                    <?php $this->renderNeoCubeFaces(); ?>
+                </div>
+                <div class="control block-cube block-input">
+                    <input type="email" name="email" placeholder="<?php esc_attr_e('Email', 'easy-auth-login'); ?>" required />
+                    <?php $this->renderNeoCubeFaces(); ?>
+                </div>
+                <div class="easy-auth-password-wrap control block-cube block-input">
+                    <input type="password" name="password" placeholder="<?php esc_attr_e('Password', 'easy-auth-login'); ?>" required data-password-strength="1" />
+                    <button type="button" class="easy-auth-toggle" data-password-toggle="1">Show</button>
+                    <?php $this->renderNeoCubeFaces(); ?>
+                </div>
+                <div class="easy-auth-strength" data-strength-bar="1"><span></span></div>
+                <input type="text" name="company_name" tabindex="-1" autocomplete="off" class="easy-auth-honeypot" />
+                <?php $this->renderNeoCubeButton(__('Register', 'easy-auth-login'), 'easy-auth-btn'); ?>
+            </form>
+        </section>
+        <?php
+    }
+
+    private function renderNeoForgotPanel(): void
+    {
+        ?>
+        <section class="easy-auth-panel" data-panel="forgot">
+            <form class="easy-auth-form" data-endpoint="/forgot-password" autocomplete="off">
+                <div class="control block-cube block-input">
+                    <input type="text" name="user_login" placeholder="<?php esc_attr_e('Username or email', 'easy-auth-login'); ?>" required />
+                    <?php $this->renderNeoCubeFaces(); ?>
+                </div>
+                <?php $this->renderNeoCubeButton(__('Send Reset Link', 'easy-auth-login'), 'easy-auth-btn'); ?>
+            </form>
+        </section>
+        <?php
+    }
+
+    private function renderNeoMagicPanel(string $redirectTo = ''): void
+    {
+        ?>
+        <section class="easy-auth-panel" data-panel="magic">
+            <form class="easy-auth-form" data-endpoint="/magic-link/request" autocomplete="off">
+                <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirectTo); ?>" />
+                <div class="control block-cube block-input">
+                    <input type="email" name="email" placeholder="<?php esc_attr_e('Email address', 'easy-auth-login'); ?>" required />
+                    <?php $this->renderNeoCubeFaces(); ?>
+                </div>
+                <?php $this->renderNeoCubeButton(__('Email Magic Link', 'easy-auth-login'), 'easy-auth-btn'); ?>
+            </form>
+        </section>
+        <?php
+    }
+
+    private function renderNeoSocialButtons(): void
+    {
+        ?>
+        <div class="easy-auth-social">
+            <button type="button" class="easy-auth-social-btn btn block-cube block-cube-hover" data-easy-auth-oauth="google">
+                <?php $this->renderNeoCubeFaces(); ?>
+                <span class="text"><?php esc_html_e('Continue with Google', 'easy-auth-login'); ?></span>
+            </button>
+            <button type="button" class="easy-auth-social-btn btn block-cube block-cube-hover" data-easy-auth-oauth="github">
+                <?php $this->renderNeoCubeFaces(); ?>
+                <span class="text"><?php esc_html_e('Continue with GitHub', 'easy-auth-login'); ?></span>
+            </button>
+        </div>
+        <?php
+    }
+
+    private function renderNeoCubeButton(string $label, string $className = ''): void
+    {
+        ?>
+        <button type="submit" class="btn block-cube block-cube-hover <?php echo esc_attr($className); ?>">
+            <?php $this->renderNeoCubeFaces(); ?>
+            <span class="text"><?php echo esc_html($label); ?></span>
+        </button>
+        <?php
+    }
+
+    private function renderNeoCubeFaces(): void
+    {
+        ?>
+        <span class="bg-top"><span class="bg-inner"></span></span>
+        <span class="bg-right"><span class="bg-inner"></span></span>
+        <span class="bg"><span class="bg-inner"></span></span>
+        <?php
     }
 
     private function renderLoginPanel(string $redirectTo = ''): void

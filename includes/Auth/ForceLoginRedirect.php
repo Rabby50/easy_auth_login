@@ -54,7 +54,11 @@ class ForceLoginRedirect
             return;
         }
 
-        $requestedUrl = home_url(wp_unslash($_SERVER['REQUEST_URI'] ?? '/'));
+        $requestedUrl = get_permalink($currentPageId);
+        if (empty($requestedUrl)) {
+            $requestedUrl = home_url('/');
+        }
+
         $redirectUrl = add_query_arg('redirect_to', $requestedUrl, $loginUrl);
 
         wp_safe_redirect($redirectUrl);

@@ -94,6 +94,13 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.15;
+  white-space: normal;
+  word-break: keep-all;
   border-radius: 0;
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.65);
 }
@@ -336,6 +343,25 @@
   }
 
   [data-easy-auth-template="neo_3d_toggle"] .easy-auth-tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  [data-easy-auth-template="neo_3d_toggle"] .easy-auth-tab {
+    min-height: 42px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    padding: 6px 4px;
+  }
+}
+
+@media (max-width: 360px) {
+  [data-easy-auth-template="neo_3d_toggle"] .easy-auth-tabs {
+    gap: 4px;
+  }
+
+  [data-easy-auth-template="neo_3d_toggle"] .easy-auth-tab {
+    font-size: 9px;
+    min-height: 40px;
   }
 }

@@ -56,10 +56,18 @@ class MagicLinkController
         update_user_meta($user->ID, 'easy_auth_magic_hash', $hashed);
         update_user_meta($user->ID, 'easy_auth_magic_expiry', $expiry);
 
-        $consumeUrl = add_query_arg([
+        $redirectTo = $this->sanitizeRedirectTo((string) $request->get_param('redirect_to'));
+
+        $query = [
             'easy_auth_magic' => rawurlencode($token),
             'easy_auth_user' => $user->ID,
-        ], home_url('/'));
+        ];
+
+        if (! empty($redirectTo)) {
+            $query['redirect_to'] = rawurlencode($redirectTo);
+        }
+
+        $consumeUrl = add_query_arg($query, home_url('/'));
 
         wp_mail(
             $user->user_email,
@@ -95,10 +103,22 @@ class MagicLinkController
         wp_set_current_user($userId);
         wp_set_auth_cookie($userId, true);
 
+        $nextUrl = $this->sanitizeRedirectTo((string) $request->get_param('redirect_to'));
+
         return new WP_REST_Response([
             'success' => true,
             'message' => __('Magic link accepted.', 'easy-auth-login'),
-            'redirect_url' => (new RedirectResolver())->resolve('login'),
+            'redirect_url' => $nextUrl ?: (new RedirectResolver())->resolve('login'),
         ], 200);
+    }
+
+    private function sanitizeRedirectTo(string $url): string
+    {
+        if (empty($url)) {
+            return '';
+        }
+
+        $decoded = rawurldecode($url);
+        return wp_validate_redirect($decoded, '');
     }
 }

@@ -90,10 +90,12 @@ class AuthController
 
         $this->rateLimit->clearAttempts($ipAddress);
 
+        $nextUrl = $this->sanitizeRedirectTo((string) $request->get_param('redirect_to'));
+
         return new WP_REST_Response([
             'success' => true,
             'message' => __('Login successful.', 'easy-auth-login'),
-            'redirect_url' => (new RedirectResolver())->resolve('login'),
+            'redirect_url' => $nextUrl ?: (new RedirectResolver())->resolve('login'),
         ], 200);
     }
 
@@ -128,10 +130,12 @@ class AuthController
         wp_set_current_user($userId);
         wp_set_auth_cookie($userId, true);
 
+        $nextUrl = $this->sanitizeRedirectTo((string) $request->get_param('redirect_to'));
+
         return new WP_REST_Response([
             'success' => true,
             'message' => __('Registration successful.', 'easy-auth-login'),
-            'redirect_url' => (new RedirectResolver())->resolve('register'),
+            'redirect_url' => $nextUrl ?: (new RedirectResolver())->resolve('register'),
         ], 201);
     }
 
@@ -178,5 +182,15 @@ class AuthController
     {
         $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         return sanitize_text_field((string) $ip);
+    }
+
+    private function sanitizeRedirectTo(string $url): string
+    {
+        if (empty($url)) {
+            return '';
+        }
+
+        $decoded = rawurldecode($url);
+        return wp_validate_redirect($decoded, '');
     }
 }

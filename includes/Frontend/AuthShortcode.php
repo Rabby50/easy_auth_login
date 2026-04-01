@@ -18,6 +18,8 @@ class AuthShortcode
         wp_enqueue_style('easy-auth-login');
         wp_enqueue_script('easy-auth-login');
 
+        $redirectTo = wp_validate_redirect(rawurldecode((string) ($_GET['redirect_to'] ?? '')), '');
+
         if (is_user_logged_in()) {
             $currentUser = wp_get_current_user();
 
@@ -39,10 +41,10 @@ class AuthShortcode
             </nav>
 
             <div class="easy-auth-panels">
-                <?php $this->renderLoginPanel(); ?>
-                <?php $this->renderRegisterPanel(); ?>
+                <?php $this->renderLoginPanel($redirectTo); ?>
+                <?php $this->renderRegisterPanel($redirectTo); ?>
                 <?php $this->renderForgotPanel(); ?>
-                <?php $this->renderMagicPanel(); ?>
+                <?php $this->renderMagicPanel($redirectTo); ?>
             </div>
 
             <div class="easy-auth-social">
@@ -56,11 +58,12 @@ class AuthShortcode
         return (string) ob_get_clean();
     }
 
-    private function renderLoginPanel(): void
+    private function renderLoginPanel(string $redirectTo = ''): void
     {
         ?>
         <section class="easy-auth-panel is-active" data-panel="login">
             <form class="easy-auth-form" data-endpoint="/login">
+                <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirectTo); ?>" />
                 <input type="text" name="username" placeholder="<?php esc_attr_e('Username or email', 'easy-auth-login'); ?>" required />
                 <div class="easy-auth-password-wrap">
                     <input type="password" name="password" placeholder="<?php esc_attr_e('Password', 'easy-auth-login'); ?>" required />
@@ -72,11 +75,12 @@ class AuthShortcode
         <?php
     }
 
-    private function renderRegisterPanel(): void
+    private function renderRegisterPanel(string $redirectTo = ''): void
     {
         ?>
         <section class="easy-auth-panel" data-panel="register">
             <form class="easy-auth-form" data-endpoint="/register">
+                <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirectTo); ?>" />
                 <input type="text" name="username" placeholder="<?php esc_attr_e('Username', 'easy-auth-login'); ?>" required />
                 <input type="email" name="email" placeholder="<?php esc_attr_e('Email', 'easy-auth-login'); ?>" required />
                 <div class="easy-auth-password-wrap">
@@ -103,11 +107,12 @@ class AuthShortcode
         <?php
     }
 
-    private function renderMagicPanel(): void
+    private function renderMagicPanel(string $redirectTo = ''): void
     {
         ?>
         <section class="easy-auth-panel" data-panel="magic">
             <form class="easy-auth-form" data-endpoint="/magic-link/request">
+                <input type="hidden" name="redirect_to" value="<?php echo esc_attr($redirectTo); ?>" />
                 <input type="email" name="email" placeholder="<?php esc_attr_e('Email address', 'easy-auth-login'); ?>" required />
                 <button type="submit" class="easy-auth-btn"><?php esc_html_e('Email Magic Link', 'easy-auth-login'); ?></button>
             </form>

@@ -82,6 +82,18 @@ class SettingsPage
             $out[$pageIdKey] = max(0, (int) ($input[$pageIdKey] ?? 0));
         }
 
+        $out['enable_redirect_to_next'] = ! empty($input['enable_redirect_to_next']);
+        $out['force_login_page_id'] = max(0, (int) ($input['force_login_page_id'] ?? 0));
+
+        $protectedIds = $input['force_login_protected_page_ids'] ?? [];
+        if (! is_array($protectedIds)) {
+            $protectedIds = array_filter(array_map('trim', explode(',', (string) $protectedIds)));
+        }
+        $protectedIds = array_values(array_unique(array_filter(array_map(static function ($id): int {
+            return max(0, (int) $id);
+        }, $protectedIds))));
+        $out['force_login_protected_page_ids'] = $protectedIds;
+
         $out['google_client_id'] = sanitize_text_field((string) ($input['google_client_id'] ?? ''));
         $out['google_client_secret'] = sanitize_text_field((string) ($input['google_client_secret'] ?? ''));
         $out['github_client_id'] = sanitize_text_field((string) ($input['github_client_id'] ?? ''));
@@ -211,6 +223,9 @@ class SettingsPage
                 foreach (['login' => 'Login', 'register' => 'Registration', 'logout' => 'Logout'] as $flow => $label) {
                     $this->pagePickerField("redirect_{$flow}_page_id", "After {$label} Redirect Page", $settings);
                 }
+                $this->checkboxField('enable_redirect_to_next', 'Enable Redirect To Next Page', $settings);
+                $this->pagePickerField('force_login_page_id', 'Force Login Redirect Page', $settings);
+                $this->multiPagePickerField('force_login_protected_page_ids', 'Protected Pages (Force Login)', $settings);
                 break;
 
             case 'social':
@@ -362,6 +377,45 @@ class SettingsPage
                 <button type="button" class="button" data-easy-auth-page-clear="1"><?php esc_html_e('Clear', 'easy-auth-login'); ?></button>
                 <div class="easy-auth-page-picker-results" data-easy-auth-page-results="1" style="margin-top:8px; max-width:420px;"></div>
                 <p class="description"><?php esc_html_e('Leave empty to use default redirect behavior.', 'easy-auth-login'); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    private function multiPagePickerField(string $key, string $label, array $settings): void
+    {
+        $ids = $settings[$key] ?? [];
+        if (! is_array($ids)) {
+            $ids = [];
+        }
+
+        $ids = array_values(array_filter(array_map('intval', $ids)));
+        $selected = [];
+
+        foreach ($ids as $id) {
+            $page = get_post($id);
+            if ($page && $page->post_type === 'page') {
+                $selected[] = [
+                    'id' => $id,
+                    'title' => get_the_title($page) ?: ('#' . $id),
+                ];
+            }
+        }
+        ?>
+        <tr>
+            <th scope="row"><?php echo esc_html($label); ?></th>
+            <td>
+                <input type="hidden" name="<?php echo esc_attr(EASY_AUTH_LOGIN_OPTION_KEY . '[' . $key . ']'); ?>" value="<?php echo esc_attr(implode(',', array_column($selected, 'id'))); ?>" data-easy-auth-page-ids="1" />
+                <input type="text" class="regular-text" value="" placeholder="<?php esc_attr_e('Search page by title...', 'easy-auth-login'); ?>" data-easy-auth-pages-search="1" autocomplete="off" />
+                <div class="easy-auth-page-picker-selected" data-easy-auth-pages-selected="1" style="margin-top:8px;">
+                    <?php foreach ($selected as $item) : ?>
+                        <button type="button" class="button" style="margin: 0 6px 6px 0;" data-selected-page-id="<?php echo esc_attr((string) $item['id']); ?>" data-selected-page-title="<?php echo esc_attr($item['title']); ?>">
+                            <?php echo esc_html($item['title'] . ' (' . $item['id'] . ')'); ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+                <div class="easy-auth-page-picker-results" data-easy-auth-pages-results="1" style="margin-top:8px; max-width:420px;"></div>
+                <p class="description"><?php esc_html_e('Users visiting these pages while logged out will be redirected to the Force Login Redirect Page, then returned after authentication.', 'easy-auth-login'); ?></p>
             </td>
         </tr>
         <?php
